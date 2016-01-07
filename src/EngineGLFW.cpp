@@ -4,6 +4,14 @@
 
 unsigned int EngineGLFW::vaoHandle = 0;
 
+void ImGui_ImplGlfwGL3_CharCallback(GLFWwindow*, unsigned int c)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	if (c > 0 && c < 0x10000)
+		io.AddInputCharacter((unsigned short)c);
+}
+
+
 void EngineGLFW::setup(ImGuiIO* io_)
 {
     io = io_;
@@ -49,7 +57,9 @@ void EngineGLFW::setup(ImGuiIO* io_)
     ofAddListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
     ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
     ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
-     
+
+	auto ptr = static_cast<ofAppGLFWWindow*>(ofGetWindowPtr());
+	glfwSetCharCallback(ptr->getGLFWWindow(), ImGui_ImplGlfwGL3_CharCallback);
 }
 
 
@@ -230,7 +240,7 @@ void EngineGLFW::onKeyReleased(ofKeyEventArgs& event)
     io->KeyAlt   = io->KeysDown[GLFW_KEY_LEFT_ALT]     || io->KeysDown[GLFW_KEY_RIGHT_ALT];
     if(key < GLFW_KEY_ESCAPE)
     {
-        io->AddInputCharacter((unsigned short)event.codepoint);
+        //io->AddInputCharacter((unsigned short)event.codepoint);
     }
 }
 
