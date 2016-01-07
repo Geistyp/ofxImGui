@@ -1,6 +1,11 @@
 ofxImgui
 ========
+Changes
+-------
+- Use __glfwSetCharCallback__ to get input char
+- Add IME input example
 
+--------
 ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks)
 
 CURRENT STATUS:  
