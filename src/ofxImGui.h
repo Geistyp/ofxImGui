@@ -35,7 +35,6 @@ public:
     
     BaseTheme* theme;
     void setTheme(BaseTheme* theme);
-private:
 
     float lastTime;
     vector<ofTexture*> loadedTextures;
@@ -45,5 +44,4 @@ private:
 #else  
     EngineGLFW* engine;
 #endif
-    ImGuiIO* io;
 };
