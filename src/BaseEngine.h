@@ -1,50 +1,57 @@
 #pragma once
-#include "ofMain.h"
-#include "imgui.h"
+
+#include "ofEvents.h"
 
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 
-class BaseEngine
+namespace ofxImGui
 {
-public:
-    BaseEngine()
-        : isSetup(false)
-    {}
+	class BaseEngine
+	{
+	public:
+		BaseEngine()
+			: isSetup(false)
+		{}
 
-    virtual ~BaseEngine()
-    {}    
-    
-    virtual void setup()=0;
-    virtual void exit()=0;
-    virtual bool createDeviceObjects()=0;
-    virtual void invalidateDeviceObjects()=0;
+		virtual ~BaseEngine()
+		{}
 
-    virtual void onMousePressed(ofMouseEventArgs& event);
-    virtual void onMouseReleased(ofMouseEventArgs& event);
-    virtual void onMouseScrolled(ofMouseEventArgs& event);
-    virtual void onKeyPressed(ofKeyEventArgs& event);
-    virtual void onKeyReleased(ofKeyEventArgs& event)=0;
-    virtual void onWindowResized(ofResizeEventArgs& window);
+		virtual void setup() = 0;
+		virtual void exit() = 0;
+		virtual bool createDeviceObjects() = 0;
+		virtual void invalidateDeviceObjects() = 0;
 
-    GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
-    
-    static const char* getClipboardString();
-    static void setClipboardString(const char * text);
+		virtual void onMouseDragged(ofMouseEventArgs& event);
+		virtual void onMousePressed(ofMouseEventArgs& event);
+		virtual void onMouseReleased(ofMouseEventArgs& event);
+		virtual void onMouseScrolled(ofMouseEventArgs& event);
+		virtual void onKeyPressed(ofKeyEventArgs& event);
+		virtual void onKeyReleased(ofKeyEventArgs& event) = 0;
+		virtual void onWindowResized(ofResizeEventArgs& window);
 
-    static int g_ShaderHandle;
-    static int g_VertHandle;
-    static int g_FragHandle;
+		virtual GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
-    static int g_AttribLocationTex;
-    static int g_AttribLocationProjMtx;
-    static int g_AttribLocationPosition;
-    static int g_AttribLocationUV;
-    static int g_AttribLocationColor;
+		static const char* getClipboardString();
+		static void setClipboardString(const char * text);
 
-    static unsigned int g_VboHandle;
-    static unsigned int g_ElementsHandle;
+		static int g_ShaderHandle;
+		static int g_VertHandle;
+		static int g_FragHandle;
 
-protected:
-    bool isSetup;
-};
+		static int g_UniformLocationTex;
+		static int g_UniformLocationProjMtx;
+		static int g_AttribLocationPosition;
+		static int g_AttribLocationUV;
+		static int g_AttribLocationColor;
+
+		static unsigned int g_VboHandle;
+		static unsigned int g_ElementsHandle;
+
+		bool mousePressed[5] = { false };
+		bool mouseReleased = true;
+
+	protected:
+		bool isSetup;
+	};
+}
 
