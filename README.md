@@ -1,9 +1,14 @@
 # ofxImGui
 
+<<<<<<< HEAD
 ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks).
 
 ### Compatibility
 Master branch may not be tested on all platforms. See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for more extensively tested versions.
+=======
+--------
+ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks)
+>>>>>>> origin/master
 
 Release versions tested with OF 0.9.x on
  - Raspberry Pi 1 and 2
