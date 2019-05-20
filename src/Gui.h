@@ -4,8 +4,15 @@
 #include "ofPixels.h"
 #include "ofTexture.h"
 
-#include "BaseEngine.h"
-#include "BaseTheme.h"
+#if defined(TARGET_OPENGLES)
+#include "EngineOpenGLES.h"
+#elif defined (OF_TARGET_API_VULKAN)
+#include "EngineVk.h"
+#else
+#include "EngineGLFW.h"
+#endif
+
+#include "DefaultTheme.h"
 
 namespace ofxImGui
 {
@@ -15,28 +22,39 @@ namespace ofxImGui
 		Gui();
 		~Gui();
 
-		void setup(BaseTheme* theme = nullptr);
+		void setup(BaseTheme* theme = nullptr, bool autoDraw = true);
+		void exit();
+
 		void begin();
 		void end();
-		void close();
 
-		BaseEngine* engine;
-		float lastTime;
+		void draw();
 
 		void setTheme(BaseTheme* theme);
-		void openThemeColorWindow();
+
+		GLuint loadImage(ofImage& image);
+		GLuint loadImage(const std::string& imagePath);
+
+		GLuint loadPixels(const std::string& imagePath);
+		GLuint loadPixels(ofPixels& pixels);
+
+		GLuint loadTexture(const std::string& imagePath);
+		GLuint loadTexture(ofTexture& texture, const std::string& imagePath);
+
+	private:        
+#if defined(TARGET_OPENGLES)
+        EngineOpenGLES engine;
+#elif defined (OF_TARGET_API_VULKAN) 
+        EngineVk engine;
+#else
+        EngineGLFW engine;
+#endif
+        
+		float lastTime;
+		bool autoDraw;
 
 		BaseTheme* theme;
 
-		GLuint loadImage(ofImage& image);
-		GLuint loadImage(string imagePath);
-
-		GLuint loadPixels(string imagePath);
-		GLuint loadPixels(ofPixels& pixels);
-
-		GLuint loadTexture(string imagePath);
-		GLuint loadTexture(ofTexture& texture, string imagePath);
-
-		vector<ofTexture*> loadedTextures;
+		std::vector<ofTexture*> loadedTextures;
 	};
 }

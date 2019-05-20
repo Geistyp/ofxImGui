@@ -1,6 +1,6 @@
 #include "ofApp.h"
 
-string ofLocaleToUtf8(const string & locale)
+string ofLocaleToUtf8(const string& locale)
 {
 	int size = MultiByteToWideChar(CP_THREAD_ACP, // code page
 		MB_ERR_INVALID_CHARS, // character-type options
@@ -10,7 +10,7 @@ string ofLocaleToUtf8(const string & locale)
 		0) + 1;               // size of buffer
 
 
-	WCHAR * pWideChar = new WCHAR[size];
+	WCHAR* pWideChar = new WCHAR[size];
 
 	MultiByteToWideChar(CP_THREAD_ACP, // code page
 		MB_ERR_INVALID_CHARS, // character-type options
@@ -28,7 +28,7 @@ string ofLocaleToUtf8(const string & locale)
 		NULL, // address of default for unmappable characters
 		NULL) + 1; // address of flag set when default char used
 
-	char * pUtf8 = new char[size];
+	char* pUtf8 = new char[size];
 
 	WideCharToMultiByte(CP_UTF8, // code page
 		0, // address of wide-character string
@@ -49,15 +49,12 @@ string ofLocaleToUtf8(const string & locale)
 
 char buf[256];
 
-#include "ofAppGLFWWindow.h"
-
 //--------------------------------------------------------------
 void ofApp::setup(){
-	
 	// add font should before gui.setup() otherwise font will not build
-	ImGuiIO * io = &ImGui::GetIO();
+	ImGuiIO* io = &ImGui::GetIO();
 	ImFontConfig font_config; font_config.OversampleH = 1; font_config.OversampleV = 1; font_config.PixelSnapH = 1;
-	io->Fonts->AddFontFromFileTTF("data/Deng.ttf", 18.0f, &font_config, io->Fonts->GetGlyphRangesChinese());
+	io->Fonts->AddFontFromFileTTF("data/msyh.ttc", 18.0f, &font_config, io->Fonts->GetGlyphRangesChineseFull());
 
 	gui.setup();
 
@@ -65,6 +62,8 @@ void ofApp::setup(){
 
 	// For Microsoft IME, pass your HWND to enable IME positioning:
 	io->ImeWindowHandle = ofGetWin32Window();
+
+	setlocale(LC_ALL, "chs");
 }
 
 //--------------------------------------------------------------
@@ -74,7 +73,6 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
 	gui.begin();
 
 	{
@@ -87,7 +85,11 @@ void ofApp::draw(){
 		ImGui::Text(txt.c_str());
 
 		// translate locale string to utf8
-		ImGui::InputText(ofLocaleToUtf8("输入中文").c_str(), buf, 256);
+		if (ImGui::InputText(ofLocaleToUtf8("输入中文").c_str(), buf, 256))
+		{
+			
+		}
+		
 
 		if (ImGui::Button(ofLocaleToUtf8("帮助窗口").c_str()))
 		{
@@ -99,7 +101,7 @@ void ofApp::draw(){
 	if (show_test_window)
 	{
 		ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
-		ImGui::ShowTestWindow(&show_test_window);
+		ImGui::ShowTestWindow();
 	}
 
 	gui.end();
@@ -156,6 +158,6 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){
+void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
 }

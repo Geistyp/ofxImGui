@@ -2,40 +2,37 @@
 
 #include "ofAppRunner.h"
 
-#if defined(TARGET_OPENGLES)
-#include "EngineOpenGLES.h"
-#elif defined (OF_TARGET_API_VULKAN)
-#include "EngineVk.h"
-#else
-#include "EngineGLFW.h"
-#endif
+
 
 namespace ofxImGui
 {
 	//--------------------------------------------------------------
 	Gui::Gui()
 		: lastTime(0.0f)
-		, engine(nullptr)
 		, theme(nullptr)
-	{}
+	{
+		ImGui::CreateContext();
+	}
 
 	//--------------------------------------------------------------
-	void Gui::setup(BaseTheme* theme_)
+	Gui::~Gui()
 	{
+		exit();
+	}
+
+	//--------------------------------------------------------------
+	void Gui::setup(BaseTheme* theme_, bool autoDraw_)
+	{
+		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 		io.MouseDrawCursor = false;
 
-#if defined(TARGET_OPENGLES)
-		engine = new EngineOpenGLES();
-#elif defined (OF_TARGET_API_VULKAN) 
-		engine = new EngineVk();
-#else 
-	engine = new EngineGLFW();
-#endif
 
-		engine->setup();
+
+		autoDraw = autoDraw_;
+		engine.setup(autoDraw);
 
 		if (theme_)
 		{
@@ -43,8 +40,31 @@ namespace ofxImGui
 		}
 		else
 		{
-			setTheme(new BaseTheme());
+            DefaultTheme* defaultTheme = new DefaultTheme();
+			setTheme((BaseTheme*)defaultTheme);
 		}
+	}
+
+	//--------------------------------------------------------------
+	void Gui::exit()
+	{
+        engine.exit();
+		if (theme)
+		{
+			delete theme;
+			theme = nullptr;
+		}
+		for (size_t i = 0; i < loadedTextures.size(); i++)
+		{
+            if(loadedTextures[i])
+            {
+                delete loadedTextures[i];
+                loadedTextures[i] = NULL;
+            }
+		}
+		loadedTextures.clear();
+
+		ImGui::DestroyContext();
 	}
 
 	//--------------------------------------------------------------
@@ -56,26 +76,20 @@ namespace ofxImGui
 			theme = nullptr;
 		}
 		theme = theme_;
-		theme->updateColors();
 		theme->setup();
 	}
 
-	//--------------------------------------------------------------
-	void Gui::openThemeColorWindow()
-	{
-		theme->themeColorsWindow(true);
-	}
+
 
 	//--------------------------------------------------------------
 	GLuint Gui::loadPixels(ofPixels& pixels)
 	{
-		return engine->loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
+		return engine.loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
 	}
 
 	//--------------------------------------------------------------
-	GLuint Gui::loadPixels(string imagePath)
+	GLuint Gui::loadPixels(const std::string& imagePath)
 	{
-		if (!engine) return -1;
 		ofPixels pixels;
 		ofLoadImage(pixels, imagePath);
 		return loadPixels(pixels);
@@ -84,18 +98,17 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	GLuint Gui::loadImage(ofImage& image)
 	{
-		if (!engine) return -1;
 		return loadPixels(image.getPixels());
 	}
 
 	//--------------------------------------------------------------
-	GLuint Gui::loadImage(string imagePath)
+	GLuint Gui::loadImage(const std::string& imagePath)
 	{
 		return loadPixels(imagePath);
 	}
 
 	//--------------------------------------------------------------
-	GLuint Gui::loadTexture(string imagePath)
+	GLuint Gui::loadTexture(const std::string& imagePath)
 	{
 		ofDisableArbTex();
 		ofTexture* texture = new ofTexture();
@@ -106,7 +119,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	GLuint Gui::loadTexture(ofTexture& texture, string imagePath)
+	GLuint Gui::loadTexture(ofTexture& texture, const std::string& imagePath)
 	{
 		bool isUsingArb = ofGetUsingArbTex();
 		if (isUsingArb)
@@ -124,11 +137,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::begin()
 	{
-		if (!engine)
-		{
-			ofLogError(__FUNCTION__) << "setup() call required, calling it for you";
-			setup();
-		}
+		
 
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -146,10 +155,7 @@ namespace ofxImGui
 		// Update settings
 		io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
 		for (int i = 0; i < 5; i++) {
-			io.MouseDown[i] = engine->mousePressed[i];
-
-			// Update for next frame; set to false only if the mouse has been released
-			engine->mousePressed[i] = !engine->mouseReleased;
+			io.MouseDown[i] = engine.mousePressed[i];
 		}
 		ImGui::NewFrame();
 	}
@@ -161,34 +167,11 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void Gui::close()
+	void Gui::draw()
 	{
-		if (engine)
+		if (!autoDraw)
 		{
-			delete engine;
-			engine = nullptr;
+			engine.draw();
 		}
-		//if(io)
-		//{
-		//    io->Fonts->TexID = 0;
-		//    io = nullptr;
-		//}
-		if (theme)
-		{
-			delete theme;
-			theme = nullptr;
-		}
-		for (size_t i = 0; i < loadedTextures.size(); i++)
-		{
-			delete loadedTextures[i];
-		}
-		loadedTextures.clear();
-	}
-
-	//--------------------------------------------------------------
-	Gui::~Gui()
-	{
-		close();
-		ImGui::Shutdown();
 	}
 }

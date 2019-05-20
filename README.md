@@ -1,5 +1,47 @@
 # ofxImGui
 
+=======
+--------
+Change sth to support IME input
+
+EngineGLFW.cpp
+```c++
+namespace ofxImGui
+{
+	GLuint EngineGLFW::g_FontTexture = 0;
+
+	void ImGui_ImplGlfwGL3_CharCallback(GLFWwindow*, unsigned int c)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		if (c > 0 && c < 0x10000)
+			io.AddInputCharacter((unsigned short)c);
+	}
+	...
+```
+---
+```c++
+void EngineGLFW::setup(bool autoDraw)
+{
+	...
+	// 
+	auto ptr = static_cast<ofAppGLFWWindow*>(ofGetWindowPtr());
+	glfwSetCharCallback(ptr->getGLFWWindow(), ImGui_ImplGlfwGL3_CharCallback);
+
+	isSetup = true;
+}
+```
+---
+```c++
+void EngineGLFW::onKeyPressed(ofKeyEventArgs& event)
+{
+	...
+	if (key < GLFW_KEY_ESCAPE || isNumericalKey)
+	{
+		//io.AddInputCharacter((unsigned short)event.codepoint);
+	}
+}
+```
+
 <<<<<<< HEAD
 ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks).
 

@@ -23,7 +23,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		ofxImGui gui;
+		ofxImGui::Gui gui;
 
 		bool show_test_window;
 		

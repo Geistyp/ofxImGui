@@ -36,22 +36,23 @@ void ofApp::setup()
     //textureSourceID = gui.loadTexture("of_upside_down.png");
 
     ofLogVerbose() << "textureSourceID: " << textureSourceID;
+    
+    ofDirectory dataDirectory(ofToDataPath("", true));
+    
+    files = dataDirectory.getFiles();
+    for(size_t i=0; i<files.size(); i++)
+    {
+        fileNames.push_back(files[i].getFileName());
+    }
 }
 
-bool doSetTheme = false;
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    if(doSetTheme)
-    {
-        doSetTheme = false;
-        gui.setTheme(new ThemeTest());
-        
-    }
+    
     
     
 }
-bool doThemeColorsWindow = false;
 //--------------------------------------------------------------
 void ofApp::draw(){
     
@@ -71,7 +72,7 @@ void ofApp::draw(){
         
         //this will change the app background color
         ImGui::ColorEdit3("Background Color", (float*)&backgroundColor);
-        if(ImGui::Button("Test Window"))
+        if(ImGui::Button("Demo Window"))
         {
             show_test_window = !show_test_window;
         }
@@ -83,6 +84,19 @@ void ofApp::draw(){
             
         }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        
+        if (ImGui::Button("CUSTOM THEME"))
+        {
+            gui.setTheme(new MyTheme());
+            
+        }ImGui::SameLine();
+        
+        if (ImGui::Button("DEFAULT THEME"))
+        {
+            gui.setTheme(new ofxImGui::DefaultTheme());
+            
+        }
+        
     }
     // 2. Show another window, this time using an explicit ImGui::Begin and ImGui::End
     if (show_another_window)
@@ -94,32 +108,52 @@ void ofApp::draw(){
         ImGui::End();
     }
     
-    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowDemoWindow()
     if (show_test_window)
     {
         ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
-        ImGui::ShowTestWindow(&show_test_window);
+        ImGui::ShowDemoWindow(&show_test_window);
     }
     
-    
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
-    
-    
-    if(doThemeColorsWindow)
+    if(!fileNames.empty())
     {
-        gui.openThemeColorWindow();
         
+        //ofxImGui::VectorListBox allows for the use of a vector<string> as a data source
+        static int currentListBoxIndex = 0;
+        if(ofxImGui::VectorListBox("VectorListBox", &currentListBoxIndex, fileNames))
+        {
+            ofLog() << " VectorListBox FILE PATH: "  << files[currentListBoxIndex].getAbsolutePath();
+        }
+        
+        //ofxImGui::VectorCombo allows for the use of a vector<string> as a data source
+        static int currentFileIndex = 0;
+        if(ofxImGui::VectorCombo("VectorCombo", &currentFileIndex, fileNames))
+        {
+            ofLog() << "VectorCombo FILE PATH: "  << files[currentFileIndex].getAbsolutePath();
+        }
     }
+
+    
+    
+    //GetImTextureID is a static function define in Helpers.h that accepts ofTexture, ofImage, or GLuint
+    if(ImGui::ImageButton(GetImTextureID(imageButtonID), ImVec2(200, 200)))
+    {
+           ofLog() << "PRESSED";
+    }
+    
+    //or do it manually
+    ImGui::Image((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
+
+    ImGui::Image(GetImTextureID(pixelsButtonID), ImVec2(200, 200));
+
+   
+    
+    
+
     
     //required to call this at end
     gui.end();
     
-    if(textureSource.isAllocated())
-    {
-        //textureSource.draw(ofRandom(200), ofRandom(200));
-    }
 }
 
 //--------------------------------------------------------------
@@ -128,16 +162,7 @@ void ofApp::keyPressed(int key){
     ofLogVerbose(__FUNCTION__) << key;
     switch (key)
     {
-        case 't' :
-        {
-            doThemeColorsWindow = !doThemeColorsWindow;
-            break;
-        }
-        case 'c' :
-        {
-            doSetTheme = !doSetTheme;
-            break;
-        }
+
         case 's':
         {
             break;
