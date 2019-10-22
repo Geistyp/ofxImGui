@@ -89,7 +89,7 @@ void ofApp::draw(){
 		{
 			
 		}
-		
+		ImGui::Text("测试中而我呢");
 
 		if (ImGui::Button(ofLocaleToUtf8("帮助窗口").c_str()))
 		{
@@ -100,7 +100,7 @@ void ofApp::draw(){
 
 	if (show_test_window)
 	{
-		ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiCond_FirstUseEver);
 		ImGui::ShowTestWindow();
 	}
 
